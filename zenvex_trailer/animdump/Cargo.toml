@@ -1,0 +1,8 @@
+[package]
+name = "animdump"
+version = "0.1.0"
+edition = "2021"
+[dependencies]
+zenvex_r3d = { path = "/home/user/eaquel/zenvex_online/rust/zenvex_r3d" }
+serde_json = "1"
+[workspace]

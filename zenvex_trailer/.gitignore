@@ -1,0 +1,10 @@
+out/
+dbg/
+__pycache__/
+animdump/target/
+cache/fire/
+cache/flip/
+cache/*.blend
+cache/*.blend1
+cache/*.log
+*.f32
