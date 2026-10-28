@@ -9,6 +9,7 @@ BR="$(git -C "$REPO" branch --show-current)"
 bash "$R/remote/setup.sh"
 cd /home/user/promo3d
 mkdir -p logs renders
+for f in $(seq $F0 $F1); do rm -f out/frames/$SHOT/$(printf %04d $f).png; done
 PYTHONUNBUFFERED=1 /home/user/tools/blender-4.5.9-linux-x64/blender -b -P shots.py -- $SHOT $F0 $F1 > logs/${SHOT}_${F0}.log 2>&1 || true
 N=$((F1 - F0 + 1))
 GOT=$(ls out/frames/$SHOT/ 2>/dev/null | wc -l)

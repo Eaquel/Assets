@@ -220,16 +220,17 @@ def decapitate(z, hit, end, hdir, rng, sc):
                 kp.interpolation = "CONSTANT"
     # kesik anındaki (pozlanmış + kumaşlı) kafa şeklini ayrı nesneye al
     sub = ob.modifiers.get("sub")
-    if sub:
-        sub.show_viewport = False
-    msk.show_viewport = False
+    clo = ob.modifiers.get("cloth")
+    for m in (sub, clo, msk):
+        if m:
+            m.show_viewport = False
     sc.frame_set(hit)
     dg = bpy.context.evaluated_depsgraph_get()
     hm = bpy.data.meshes.new_from_object(ob.evaluated_get(dg))
     mw = ob.matrix_world.copy()
-    if sub:
-        sub.show_viewport = True
-    msk.show_viewport = True
+    for m in (sub, clo, msk):
+        if m:
+            m.show_viewport = True
     import bmesh
 
     bm = bmesh.new()
