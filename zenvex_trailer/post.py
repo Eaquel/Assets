@@ -362,6 +362,32 @@ def shing(dur=1.6, gain=0.35):
     return np.stack([x * 0.9, x], 1).astype(np.float32)
 
 
+def splat(gain=0.8, seed=5):
+    """ıslak kesik: kısa yüksek frekanslı kopma + alçak et vuruşu"""
+    n = int(0.5 * SR)
+    rng = np.random.default_rng(seed)
+    nz = rng.normal(0, 1, n).astype(np.float32)
+    hp = nz - np.convolve(nz, np.ones(6) / 6, "same")
+    x = hp * env_exp(n, 0.001, 0.06) * 1.2 + np.convolve(nz, np.ones(40) / 40, "same") * env_exp(n, 0.002, 0.12) * 4
+    x = x * gain
+    th = boom(0.4, 90, 50, gain * 0.7, 0.1, seed)
+    out = np.stack([x, x], 1).astype(np.float32)
+    out[: len(th)] += th[: len(out)]
+    return out
+
+
+def squirt(dur=0.9, gain=0.35, seed=8):
+    """kan fışkırması: titreşimli, sönümlenen ıslak hışırtı"""
+    n = int(dur * SR)
+    t = np.arange(n) / SR
+    rng = np.random.default_rng(seed)
+    nz = rng.normal(0, 1, n).astype(np.float32)
+    band = np.convolve(nz, np.ones(3) / 3, "same") - np.convolve(nz, np.ones(14) / 14, "same")
+    pulse = 0.55 + 0.45 * np.sin(2 * np.pi * 7 * t) ** 2
+    x = band * pulse * np.exp(-t * 2.6) * gain
+    return np.stack([x * 0.8, x], 1).astype(np.float32)
+
+
 def taiko(gain=0.8, seed=2):
     return boom(0.7, 120, 55, gain, 0.6, seed)
 
@@ -421,6 +447,11 @@ def audio(path):
         put(load("hit.ogg"), T("D2", hf), 1.0)
         put(boom(1.2, 110, 40, 0.9, 0.8, hf), T("D2", hf))
         put(pitch(load("zdeath.wav"), 0.9), T("D2", hf + 1), 0.6)
+        put(splat(0.9, hf), T("D2", hf))
+        put(squirt(0.9, 0.4, hf), T("D2", hf + 1))
+        for k, b in enumerate((22, 28)):
+            if hf + b <= 54:
+                put(boom(0.25, 140, 70, 0.45 / (k + 1), 0.3, hf + b), T("D2", hf + b))
     put(load("rage.wav"), T("D2", 20), 0.35)
     # E: silah — metalik parıltı + kalp atışı
     put(shing(2.0, 0.4), T("E", 4))
